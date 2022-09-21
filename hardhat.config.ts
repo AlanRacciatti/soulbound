@@ -51,6 +51,8 @@ const config: HardhatUserConfig = {
     coinmarketcap: process.env.COINMARKETCAP_API_KEY,
     showMethodSig: true,
     onlyCalledMethods: false,
+    token: 'MATIC',
+    gasPriceApi: 'https://api.polygonscan.com/api?module=proxy&action=eth_gasPrice',
   },
   preprocess: {
     eachLine: removeConsoleLog((hre) => hre.network.name !== 'hardhat'),
