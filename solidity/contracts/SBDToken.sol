@@ -10,14 +10,21 @@ contract SBDToken is ERC721, ERC721URIStorage, Ownable {
   using Counters for Counters.Counter;
 
   Counters.Counter private _tokenIdCounter;
+  string private _initialUri;
+  string[3] private _boughtUris;
 
-  constructor() ERC721('Soulbound', 'SBD') {}
+  constructor(string memory initialUri, string[3] memory boughtUris) ERC721('Soulbound', 'SBD') {
+    _initialUri = initialUri;
+    _boughtUris = boughtUris;
+  }
 
-  function safeMint(address to, string memory uri) external onlyOwner {
-    uint256 tokenId = _tokenIdCounter.current();
-    _tokenIdCounter.increment();
-    _safeMint(to, tokenId);
-    _setTokenURI(tokenId, string(abi.encodePacked(uri, Strings.toString(tokenId))));
+  function safeMint(uint256 n) external onlyOwner {
+    for (uint256 i = 0; i < n; i++) {
+      uint256 tokenId = _tokenIdCounter.current();
+      _tokenIdCounter.increment();
+      _safeMint(msg.sender, tokenId);
+      _setTokenURI(tokenId, string(abi.encodePacked(_initialUri, Strings.toString(tokenId))));
+    }
   }
 
   function _beforeTokenTransfer(
@@ -26,6 +33,11 @@ contract SBDToken is ERC721, ERC721URIStorage, Ownable {
     uint256 tokenId
   ) internal virtual override {
     require(from == address(0) || from == owner(), 'Err: token transfer is BLOCKED');
+
+    if (from == owner()) {
+      _setTokenURI(tokenId, string(abi.encodePacked(_boughtUris[tokenId % 3], Strings.toString(tokenId))));
+    }
+
     super._beforeTokenTransfer(from, to, tokenId);
   }
 
