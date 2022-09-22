@@ -17,7 +17,10 @@ describe('SBDToken', () => {
 
   before(async () => {
     sbdTokenFactory = await smock.mock<SBDToken__factory>('SBDToken');
-    sbdToken = await sbdTokenFactory.deploy('https://google.com', ['https://facebook.com', 'https://instagram.com', 'https://tiktok.com']);
+    sbdToken = await sbdTokenFactory.deploy(
+      'ipfs://QmX24rdvjNeHonXuhLirRqmppQyY5KKPApDd7Bm2Lp9HyN',
+      'ipfs://QmbM8Q7KqByyECd1xvXTgGSvry2SoiYjKWDMjA4UqDsoNZ/'
+    );
     snapshot = await takeSnapshot();
 
     [deployer, alice, bob] = await ethers.getSigners();
