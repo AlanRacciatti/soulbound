@@ -11,11 +11,11 @@ contract SBDToken is ERC721, ERC721URIStorage, Ownable {
 
   Counters.Counter private _tokenIdCounter;
   string private _initialUri;
-  string[3] private _boughtUris;
+  string private _boughtUri;
 
-  constructor(string memory initialUri, string[3] memory boughtUris) ERC721('Soulbound', 'SBD') {
+  constructor(string memory initialUri, string memory boughtUri) ERC721('Soulbound', 'SBD') {
     _initialUri = initialUri;
-    _boughtUris = boughtUris;
+    _boughtUri = boughtUri;
   }
 
   function safeMint(uint256 n) external onlyOwner {
@@ -23,10 +23,15 @@ contract SBDToken is ERC721, ERC721URIStorage, Ownable {
       uint256 tokenId = _tokenIdCounter.current();
       _tokenIdCounter.increment();
       _safeMint(msg.sender, tokenId);
-      _setTokenURI(tokenId, string(abi.encodePacked(_initialUri, Strings.toString(tokenId))));
+      _setTokenURI(tokenId, _initialUri);
     }
   }
 
+  /**
+   * @notice Runs before any ERC721 transfer method
+   * @dev The require statement in line 39 makes it a soulbound token once it is bought (or transferred by the owner to other address)
+   * @dev (tokenId % 3) + 1 is used to get a number between 1 and 3, which correspond to the NFT metadata after transferring it
+   **/
   function _beforeTokenTransfer(
     address from,
     address to,
@@ -35,7 +40,7 @@ contract SBDToken is ERC721, ERC721URIStorage, Ownable {
     require(from == address(0) || from == owner(), 'Err: token transfer is BLOCKED');
 
     if (from == owner()) {
-      _setTokenURI(tokenId, string(abi.encodePacked(_boughtUris[tokenId % 3], Strings.toString(tokenId))));
+      _setTokenURI(tokenId, string(abi.encodePacked(_boughtUri, Strings.toString((tokenId % 3) + 1), '.json')));
     }
 
     super._beforeTokenTransfer(from, to, tokenId);
