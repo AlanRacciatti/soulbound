@@ -38,7 +38,7 @@ describe('SBDToken', () => {
   });
 
   it("Should be able to mint multiple NFT's", async () => {
-    let amount: number = 500;
+    let amount: number = 300;
 
     await sbdToken.connect(deployer).safeMint(amount);
     expect(await sbdToken.balanceOf(deployer.address)).to.equal(amount);
@@ -60,5 +60,14 @@ describe('SBDToken', () => {
     await sbdToken.connect(deployer).transferFrom(deployer.address, alice.address, tokenId);
 
     await expect(sbdToken.connect(alice).transferFrom(alice.address, bob.address, tokenId)).to.be.revertedWith(errorMessage);
+  });
+
+  it('Should be able to transfer ownership', async () => {
+    const amount: number = 1;
+
+    await sbdToken.connect(deployer).transferOwnership(alice.address);
+    await expect(sbdToken.connect(deployer).safeMint(amount)).to.be.revertedWith('Ownable: caller is not the owner');
+    await sbdToken.connect(alice).safeMint(amount);
+    expect(await sbdToken.balanceOf(alice.address)).to.equal(amount);
   });
 });
